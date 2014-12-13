@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2014, Maxime Carro, Célia Strzelecki
  * All rights reserved.
  * 
