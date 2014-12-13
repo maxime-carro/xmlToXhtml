@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="xmlToXhtml" default="displayProperties" basedir=".">
+
+	<!-- =================================================================== -->
+	<!-- Définition des propriétés du projet -->
+	<!-- =================================================================== -->
+	
+	<property name="project.shortname" value="xmlToXhtml"/>
+	<property name="package.name" value="xmlToXhtml"/>
+	<property name="project.version" value="0.0.1" />
+	<property name="project.author" value="Maxime Carro, Célia Strzelecki" />
+
+	<property name="src.dir" value="src" />
+	
+	<property name="classes.dir" value="bin" />
+	<property name="sax.dir" value="SAX" />
+	<property name="xslt.dir" value="XSLT" />
+	
+
+	<property name="debug.flag" value="on"/>
+	<property name="verbose.flag" value="no"/>
+	<property name="build.compiler" value="javac1.7"/>
+
+
+	<!-- =================================================================== -->
+	<!-- Definition des  différents listfile, patternset et path -->
+	<!-- =================================================================== -->
+	
+	<path id="run.path">
+		<pathelement path="${classes.dir}"/>
+		<dirset dir="${basedir}">
+			<include name="${classes.dir}/${sax.dir}"/>
+			<include name="${classes.dir}/${xslt.dir}"/>
+		</dirset>
+	</path>
+	
+	<!-- =================================================================== -->
+	<!-- Default -->
+	<!-- =================================================================== -->
+
+	<target name="displayProperties" description="Par défaut, affichage des propriétés du projet">
+		<tstamp />
+
+		<echo message="${TODAY}," />
+		<echo message="Project ${ant.project.name}" />
+		<echo message="Version ${project.version}" />
+		<echo message="Author ${project.author}" />
+		<echo message="Ant Configuration File ${ant.file}" />
+		<echo message="JVM  ${ant.java.version}" />
+		<echoproperties/>
+
+	</target>
+
+
+	<!-- =================================================================== -->
+    <!-- clean generated files and backup files -->
+	<!-- =================================================================== -->
+
+	<target name="clean" description="Suppression des répertoires et fichiers générés">
+
+		<tstamp />
+
+		<delete dir="${classes.dir}" />
+			
+		<echo message="${DSTAMP}-${TSTAMP} -- Suppression des répértoires et fichiers générés" />
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Initialisation -->
+	<!-- =================================================================== -->
+
+	<target name="init" depends="clean" description="Création des répertoires de construction du projet">
+
+		<tstamp />
+
+		<mkdir dir="${classes.dir}" />
+		<mkdir dir="${classes.dir}/${sax.dir}" />
+		<mkdir dir="${classes.dir}/${xslt.dir}" />
+
+		<echo message="${DSTAMP}-${TSTAMP} -- Création des répertoires de construction du projet" />
+
+	</target>
+
+
+	<!-- ================================================-->
+	<!-- Compilation des sources -->
+	<!-- ================================================-->
+
+	<target name="compile_sax" depends="init" description="Compilation des sources métiers du projet">
+	  <javac includeantruntime="false"
+	  	 srcdir="${src.dir}/${sax.dir}"
+		 destdir="${classes.dir}/${sax.dir}"
+		 optimize="off"
+		 debug="${debug.flag}"
+		 verbose="${verbose.flag}"
+		 deprecation="on"        
+		 source="1.7"
+		 target="1.7">
+	  </javac>
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Exécution des classes -->
+	<!-- =================================================================== -->
+	
+	<!-- A l'execution de cette cible, il est nécessaire d'entrer le paramètre "xml-file"
+		 Pour spécifier un paramètre à la cible par exemple : ant run_sax -Dxml-file=example.xml	-->
+	<target name="run_sax" depends="compile_sax" description="Execution du progamme avec la méthode SAX" >
+		<property name="xml-file" value="/www"/>
+	 	<java classname="SAX.SaxXmlToXhtml" fork="true">
+	 		<arg value="${xml-file}"/>
+			<classpath refid="run.path"/>
+		</java>
+	</target>
+	
+	
+	
+	
+</project>
