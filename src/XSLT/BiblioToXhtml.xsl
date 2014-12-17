@@ -33,6 +33,8 @@
 
 
 	<!-- Les templates à appliquer -->
+
+	<!-- Traitement principal, faisant appel à tous les autres templates -->
 	<xsl:template match="conference">
 		<!-- Il y a 2 traitements réalisés sur les conférences-->
 		<xsl:param name="num_traitement" />
@@ -46,15 +48,15 @@
 				<xsl:value-of select="edition/titre/text()"/> - 
 
 						<xsl:if test="contains(articles/article/@id, $annee)" >
-							<xsl:value-of select="$annee" />
+							<a href="#{edition/acronyme/text()}" ><xsl:value-of select="$annee" /></a>
 						</xsl:if>
 			</li>
 		</xsl:if>
 
 		<!-- Traitement pour les détails des conférences -->
 		<xsl:if test="$num_traitement = 1">
-			<div>
-				<h2>
+			<div id="conference">
+				<h2 id="{edition/acronyme/text()}">
 					<xsl:value-of select="$annee" /> - 
 					<xsl:value-of select="edition/acronyme/text()" /> - 
 					<xsl:apply-templates select="edition/presidents/nom" />
@@ -67,11 +69,16 @@
 
 				<xsl:apply-templates select="edition/meilleurArticle" />
 
-				<p></p>
+				<h3>Les articles</h3>
+				<div id="articles">
+					<xsl:apply-templates select="articles" />
+				</div>
 			</div>
 		</xsl:if>
 		
 	</xsl:template>
+
+
 
 	<!-- Mise en forme des noms des présidents de la conférence -->
 	<xsl:template match="presidents/nom">
@@ -100,6 +107,7 @@
 
 	<!-- Traitement sur les meilleurs articles -->
 	<xsl:template match="meilleurArticle">
+
 		<xsl:if test="not(articleId) or string-length(articleId/text()) = 0">
 			<br/>
 			Il n'y a aucun meilleur article. 
@@ -110,11 +118,51 @@
 			Meilleur(s) article(s) : 
 			<ul><xsl:apply-templates select="articleId" /></ul>
 		</xsl:if>
+
 	</xsl:template>
 
 	<!-- Mise en forme de chaque id d'article référencé en meilleur article -->
 	<xsl:template match="articleId">
 		<li><xsl:value-of select="text()" /></li>
+	</xsl:template>
+
+	<!-- Tri sur les articles pour l'affichage -->
+	<xsl:template match="articles">
+		<xsl:apply-templates select="article" >
+			<xsl:sort select="article/auteurs/auteur/nom[position() = 0]" />
+		</xsl:apply-templates>
+	</xsl:template>
+
+	<!-- Traitement sur chaque article d'une conférence -->
+	<xsl:template match="article">
+		<xsl:apply-templates select="auteurs" />
+
+		<h4><xsl:value-of select="titre/text()" /></h4>
+		<p><xsl:value-of select="resume/text()" /></p>
+
+		<hr />
+
+		<h4><xsl:value-of select="title/text()" /></h4>
+		<p><xsl:value-of select="abstract/text()" /></p>
+
+	</xsl:template>
+
+	<!-- Traitement pour tous les auteurs -->
+	<xsl:template match="auteurs">
+		<xsl:apply-templates select="auteur" />
+	</xsl:template>
+
+	<!-- Mise en forme des coordonnées d'un auteur -->
+	<xsl:template match="auteur">
+		<xsl:if test="email and string-length(email/text()) != 0">
+			Auteur : <xsl:value-of select="nom/text()" /> -
+			Contact : <xsl:value-of select="email/text()" />
+		</xsl:if>
+
+		<xsl:if test="not(email) or string-length(email/text()) = 0">
+			Auteur : <xsl:value-of select="nom/text()" />
+		</xsl:if>
+		<br />
 	</xsl:template>
 
 </xsl:stylesheet>
