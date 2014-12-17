@@ -31,18 +31,18 @@
 package SAX;
 
 import java.io.File;
-import java.io.PrintStream;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
-import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
+import SAX.Bean.Article;
+import SAX.Bean.Conference;
+import SAX.Bean.Edition;
 
 /**
  * 
@@ -52,25 +52,237 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class SaxXmlToXhtml extends DefaultHandler
 {
-	static final String JAXP_SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
-	static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
-	static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource";
-	static final String SCHEMA_FILE = null;// TODO à modifier
-
+	private static final String JAXP_SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
+	private static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
+	private static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource";
+	
+	private ArrayList<Conference> conferences;
+	private Deque<Object> elementStack;
+	private String currentElement;
+	
+	private int affiliationId;
+	private String affiliationIdName;
+	
 	public void startDocument() throws SAXException
 	{
-		
+		conferences = new ArrayList<Conference>();
+		elementStack = new LinkedList<Object>();
+		affiliationIdName = "";
 	}
 
 	public void startElement(String namespaceURI, String localName,
 			String qName, Attributes atts) throws SAXException
 	{
-		
+		currentElement = qName;
+		switch (qName) {
+		case "conference" : 
+			Conference conf = new Conference();
+			conferences.add(conf);
+			this.elementStack.push(conf);
+			break;
+		case "edition" :
+			Edition edition = new Edition();
+			((Conference)elementStack.element()).setEdition(edition);
+			elementStack.push(edition);
+			break;
+		case "article" : 
+			Article article = new Article(atts.getValue("id"), atts.getValue("session"));
+			((Conference)elementStack.element()).getArticles().add(article);
+			elementStack.push(article);
+			break;
+		case "type" : 
+			if(elementStack.element() instanceof Edition)
+			{
+				ArrayList<String[]> typeArticle = ((Edition)elementStack.element()).getTypeArticles();
+				typeArticle.add(new String[2]);
+				String[] str = typeArticle.get(typeArticle.size()-1);
+				str[0] = atts.getValue("id");
+			}
+			break;
+		case "acceptations" : 
+			ArrayList<String[]> statistiques = ((Edition)elementStack.element()).getStatistiques();
+			statistiques.add(new String[3]);
+			String[] str2 = statistiques.get(statistiques.size()-1);
+			str2[0] = atts.getValue("id");
+			str2[1] = atts.getValue("soumissions");
+			break;
+		case "affiliation" :
+			try {
+				affiliationId = Integer.parseInt(atts.getValue("affiliationId"));
+			}
+			catch(Exception e)
+			{
+				System.out.println("Erreur dans la lecture de l'attribut : affiliationid");
+			}
+			break;
+		case "nom" : 
+			if(elementStack.element() instanceof Edition)
+			{
+				((Edition)elementStack.element()).getPresidents().add("");
+			}
+			break;
+		case "articleid" :
+			((Edition)elementStack.element()).getMeilleurArticle().add("");
+			break;
+		case "auteur" : 
+			((Article)elementStack.element()).getAuteurs().add(new String[3]);
+			break;
+		}
 	}
 
 	public void characters(char[] ch, int start, int length) throws SAXException
 	{
+		String str = "";
+		int j = length;
+		for(int i = start; j>0; i++, j--)
+		{
+			str += ch[i];
+		}
+		str = str.trim();
 		
+		
+		switch (this.currentElement) {
+		case "acronyme" : 
+			((Edition)elementStack.element()).setAcronyme(((Edition)elementStack.element()).getAcronyme() + str);
+			break;
+		case "titre" : 
+			if( elementStack.element() instanceof Edition)
+			{
+				((Edition)elementStack.element()).setTitre(((Edition)elementStack.element()).getTitre() + str);
+			}
+			else
+			{
+				((Article)elementStack.element()).setTitre(((Article)elementStack.element()).getTitre() + str);
+			}
+			break;
+		case "ville" : 
+			((Edition)elementStack.element()).setVille(((Edition)elementStack.element()).getVille() + str);
+			break;
+		case "pays" : 
+			((Edition)elementStack.element()).setPays(((Edition)elementStack.element()).getPays() + str);
+			break;
+		case "datedebut" : 
+			((Edition)elementStack.element()).setDateDebut(((Edition)elementStack.element()).getDateDebut() + str);
+			break;
+		case "datefin" :
+			((Edition)elementStack.element()).setDateFin(((Edition)elementStack.element()).getDateFin() + str);
+			break;
+		case "nom" : 
+			if( elementStack.element() instanceof Edition)
+			{
+				ArrayList<String> presidents = ((Edition)elementStack.element()).getPresidents();
+				String str2 = presidents.get(presidents.size()-1);
+				str2 += str;
+			}
+			else
+			{
+				ArrayList<String[]> auteurs = ((Article)elementStack.element()).getAuteurs();
+				String[] auteur = auteurs.get(auteurs.size()-1);
+				if(auteur[0] == null)
+				{
+					auteur[0] = str;
+				}
+				else
+				{
+					auteur[0] += str;
+				}
+			}
+			break;
+		case "type" : 
+			if( elementStack.element() instanceof Edition)
+			{
+				ArrayList<String[]> typearticles = ((Edition)elementStack.element()).getTypeArticles();
+				String[] type = typearticles.get(typearticles.size()-1);
+				if(type[1] == null)
+				{
+					type[1] = str;
+				}
+				else
+				{
+					type[1] += str;
+				}
+			}
+			else
+			{
+				((Article)elementStack.element()).setType(((Article)elementStack.element()).getType() + str);
+			}
+			break;
+		case "acceptations" : 
+			ArrayList<String[]> satistiques = ((Edition)elementStack.element()).getStatistiques();
+			String[] acceptations = satistiques.get(satistiques.size()-1);
+			if(acceptations[2] == null)
+			{
+				acceptations[2] = str;
+			}
+			else
+			{
+				acceptations[2] += str;
+			}
+			break;
+		case "siteweb" :
+			((Edition)elementStack.element()).setSiteWeb(((Edition)elementStack.element()).getSiteWeb() + str);
+			break;
+		case "articleid" : 
+			ArrayList<String> meilleur = ((Edition)elementStack.element()).getMeilleurArticle();
+			String str2 = meilleur.get(meilleur.size()-1);
+			str2 += str;
+			break;
+		case "email" : 
+			ArrayList<String[]> auteurs = ((Article)elementStack.element()).getAuteurs();
+			String[] auteur = auteurs.get(auteurs.size()-1);
+			if(auteur[1] == null)
+			{
+				auteur[1] = str;
+			}
+			else
+			{
+				auteur[1] += str;
+			}
+			break;
+		case "affiliationid" : 
+			ArrayList<String[]> auteurs2 = ((Article)elementStack.element()).getAuteurs();
+			String[] auteur2 = auteurs2.get(auteurs2.size()-1);
+			if(auteur2[2] == null)
+			{
+				auteur2[2] = str;
+			}
+			else
+			{
+				auteur2[2] += str;
+			}
+			break;
+		case "affiliation" : 
+			affiliationIdName += str;
+			break;
+		case "pages" : 
+			((Article)elementStack.element()).setPages(((Article)elementStack.element()).getPages() + str);
+			break;
+		case "resume" : 
+			((Article)elementStack.element()).setResume(((Article)elementStack.element()).getResume() + str);
+			break;
+		case "mots_cles" : 
+			((Article)elementStack.element()).setMotCles(((Article)elementStack.element()).getMotCles() + str);
+			break;
+		case "title" : 
+			((Article)elementStack.element()).setTitle(((Article)elementStack.element()).getTitle() + str);
+			break;
+		case "abstract" : 
+			((Article)elementStack.element()).setAbstractt(((Article)elementStack.element()).getAbstractt() + str);
+			break;
+		}
+	}
+	
+	public void endElement(String uri, String localName, String qName) throws SAXException
+	{
+		if(qName == "conference" || qName == "edition" || qName == "article")
+		{
+			this.elementStack.pop();
+		}
+		if(qName == "affiliation")
+		{
+			((Article)elementStack.element()).getAffiliations().put(affiliationId, affiliationIdName);
+			affiliationIdName = "";
+		}
 	}
 	
 	public void endDocument() throws SAXException
@@ -98,7 +310,6 @@ public class SaxXmlToXhtml extends DefaultHandler
 	static public void main(String[] args) throws Exception
 	{
 		String filename = null;
-		boolean xsdValidate = false;// TODO à modifier
 
 		for (int i = 0; i < args.length; i++)
 		{
@@ -124,27 +335,7 @@ public class SaxXmlToXhtml extends DefaultHandler
 
 		saxFactory.setNamespaceAware(true);
 
-		saxFactory.setValidating(xsdValidate);
-
 		SAXParser saxParser = saxFactory.newSAXParser();
-		
-		if (xsdValidate)
-		{
-			try
-			{
-				saxParser.setProperty(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
-			} catch (SAXNotRecognizedException x)
-			{
-				System.err.println("Error: JAXP SAXParser property not recognized: " + JAXP_SCHEMA_LANGUAGE);
-				System.err.println("Check to see if parser conforms to JAXP 1.2 spec.");
-				System.exit(1);
-			}
-		}
-		
-		if (SCHEMA_FILE != null)
-		{
-			saxParser.setProperty(JAXP_SCHEMA_SOURCE, new File(SCHEMA_FILE));
-		}
 		
 		XMLReader xmlReader = saxParser.getXMLReader();
 		

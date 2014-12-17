@@ -8,7 +8,7 @@ xmlToXhtml est un programme simple qui permet aux utilisateurs de transformer un
 
 ________________________
 
-Environement : 
+Environnement : 
 
 Pour pouvoir compiler les sources de la partie SAX, il est nécessaire de posséder à minima
 java 1.7 (windows ou linux).
@@ -39,8 +39,8 @@ méthodes
 est crée pour chaque méthode utilisée (SAX et XSLT).
 	- examples : Répertoire contenant des exemples de fichier xml à changer en xhtml, et la
 version xhtml qui leur correspond.
-	- ressources : Répertoires contenant toutes les ressources utilisées. Par exemple les fichiers
-xschema, css, etc...
+	- ressources : Répertoires contenant toutes les ressources utilisées. Par exemple les fichiers 
+css, etc...
 
 
 ________________________
