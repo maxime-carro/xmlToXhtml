@@ -6,17 +6,22 @@
 	<xsl:template match="conferences">
 		<html>
 			<head>
-				<meta charset="utf-8"></meta>
+				<title>Liste des conférences</title>
+				<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+				<!-- Une petite feuille css, juste parce que c'est fun d'avoir une belle page avec des couleurs, des bordures, etc. -->
+				<link href="../ressources/layout.css" rel="stylesheet" type="text/css" />
 			</head>
 			<body>
 
 				<h1>Index des conférences</h1>
 				<div id="indexConferences">
-					<xsl:apply-templates select="//conference">
-						<xsl:with-param name="num_traitement" select="0" />
-						<xsl:sort select="edition/titre/text()" />
-						<xsl:sort select="substring-before(edition/dateDebut, '-')" />
-					</xsl:apply-templates>
+					<ul>
+						<xsl:apply-templates select="//conference">
+							<xsl:with-param name="num_traitement" select="0" />
+							<xsl:sort select="edition/titre/text()" />
+							<xsl:sort select="substring-before(edition/dateDebut, '-')" />
+						</xsl:apply-templates>
+					</ul>
 				</div>
 
 				<h1>Détails des conférences</h1>
@@ -27,6 +32,8 @@
 							<xsl:sort select="substring-before(edition/dateDebut, '-')" />
 					</xsl:apply-templates>
 				</div>
+
+				<div id="footer">Liste des conférences réalisées par Célia Strzelecki et Maxime Carro - IUT de Nantes - 2014/2015</div>
 			</body>
 		</html>	
 	</xsl:template>
@@ -55,11 +62,11 @@
 
 		<!-- Traitement pour les détails des conférences -->
 		<xsl:if test="$num_traitement = 1">
-			<div id="conference">
+			<div class="conference">
 				<h2 id="{edition/acronyme/text()}">
 					<xsl:value-of select="$annee" /> - 
-					<xsl:value-of select="edition/acronyme/text()" /> - 
-					<xsl:apply-templates select="edition/presidents/nom" />
+					<xsl:value-of select="edition/acronyme/text()" /> - Président(s) :  
+					<xsl:apply-templates select="edition/presidents/nom" /> à 
 					<xsl:value-of select="edition/ville/text()" />
 				</h2>
 
@@ -116,14 +123,16 @@
 		<xsl:if test="articleId and string-length(articleId/text()) != 0">
 			<br/>
 			Meilleur(s) article(s) : 
-			<ul><xsl:apply-templates select="articleId" /></ul>
+			<ul>
+				<xsl:apply-templates select="articleId" />
+			</ul>
 		</xsl:if>
 
 	</xsl:template>
 
 	<!-- Mise en forme de chaque id d'article référencé en meilleur article -->
 	<xsl:template match="articleId">
-		<li><xsl:value-of select="text()" /></li>
+		<li><a href="#{text()}"><xsl:value-of select="text()" /></a></li>
 	</xsl:template>
 
 	<!-- Tri sur les articles pour l'affichage -->
@@ -135,16 +144,18 @@
 
 	<!-- Traitement sur chaque article d'une conférence -->
 	<xsl:template match="article">
+		<h4 id="{@id}"><xsl:value-of select="titre/text()" /></h4>
 		<xsl:apply-templates select="auteurs" />
 
-		<h4><xsl:value-of select="titre/text()" /></h4>
 		<p><xsl:value-of select="resume/text()" /></p>
 
+		<xsl:if test="abstract/text() and string-length(abstract/text()) != 0">
+			<em>Version anglaise :</em>
+
+			<h4><xsl:value-of select="title/text()" /></h4>
+			<p><xsl:value-of select="abstract/text()" /></p>
+		</xsl:if>
 		<hr />
-
-		<h4><xsl:value-of select="title/text()" /></h4>
-		<p><xsl:value-of select="abstract/text()" /></p>
-
 	</xsl:template>
 
 	<!-- Traitement pour tous les auteurs -->
