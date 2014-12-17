@@ -1,0 +1,51 @@
+<html>
+	<head>
+		<title>Liste des conférences</title>
+		<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+		<!-- Une petite feuille css, juste parce que c'est fun d'avoir une belle page avec des couleurs, des bordures, etc. -->
+		<link href="../ressources/layout.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+
+		<h1>Index des conférences</h1>
+		<div id="indexConferences">
+			<ul>
+				<li>titre de la conférence - <a href="#acronyme">année</a></li>
+			</ul>
+		</div>
+
+		<h1>Détails des conférences</h1>
+		<div id="detailConferences">
+			<h2 id="acronyme">année - acronyme - Président(s) : noms - lieu</h2>
+			Il y a nb articles référencés. 
+			(s'il n'y a pas de stat, afficher : Il n'y a aucune information sur les articles soumis/acceptés.)
+			Statistiques :
+			<ul>
+				<li>nb_soumissions articles id_acceptation soumis dont valeur_acceptation acceptés. </li>
+			</ul>
+			Meilleur(s) article(s) :
+			<ul>
+				<li><a href="#id_article">id article</a></li>
+			</ul>
+
+			<h3>Les articles</h3>
+			<div id="articles">
+				<h4 id="{@id}"><xsl:value-of select="titre/text()" /></h4>
+				Auteur : nom - Contact :<br/>
+				Auteur : nom - Contact :<br/>
+
+				<p>text résumé/article</p>
+
+				
+				<em>Version anglaise :</em>
+
+				<h4>titre anglais</h4>
+				<p>text résumé/article anglais</p>
+
+				<hr />
+			</div>
+		</div>
+
+		<div id="footer">Liste des conférences réalisées par Célia Strzelecki et Maxime Carro - IUT de Nantes - 2014/2015</div>
+	</body>
+</html>
