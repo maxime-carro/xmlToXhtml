@@ -42,6 +42,9 @@ import java.util.HashMap;
  */
 public class Article {
 	
+	private String id;
+	private String session;
+	
 	private ArrayList<String[]> auteurs;
 	private HashMap<Integer, String> affiliations;
 	private String titre;
@@ -56,8 +59,11 @@ public class Article {
 	/**
 	 * Constructeur de la classe Article qui initialise ses attributs
 	 */
-	public Article()
+	public Article(String id, String session)
 	{
+		this.id = id;
+		this.session = session;
+		
 		this.auteurs = new ArrayList<String[]>();
 		this.affiliations = new HashMap<Integer, String>();
 		this.titre = "";
@@ -68,6 +74,22 @@ public class Article {
 		this.title = "";
 		this.abstractt = "";
 		this.keywords = "";
+	}
+	
+	/**
+	 * @return l'identifiant
+	 */
+	public String getId()
+	{
+		return id;
+	}
+
+	/**
+	 * @return la session
+	 */
+	public String getSession()
+	{
+		return session;
 	}
 
 	/**
