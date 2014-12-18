@@ -5,6 +5,13 @@ Description :
 
 xmlToXhtml est un programme simple qui permet aux utilisateurs de transformer un fichier de conferences XML en XTHML
 
+________________________
+Commandes exemples : (lorsque l'on se situe dans le répertoire du projet)
+
+ant run_sax -Dxml-file=examples/TALN-RECITAL-BIB.xml
+
+xsltproc src/XSLT/BiblioToXhtml.xsl examples/TALN-RECITAL-BIB.xml
+
 
 ________________________
 
