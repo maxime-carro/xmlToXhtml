@@ -109,7 +109,7 @@
 		 Pour spécifier un paramètre à la cible par exemple : ant run_sax -Dxml-file=example.xml	-->
 	<target name="run_sax" depends="compile_sax" description="Execution du progamme avec la méthode SAX" >
 		<property name="xml-file" value="/www"/>
-	 	<java classname="SAX.SaxXmlToXhtml" fork="true">
+	 	<java classname="SAX.BiblioToXhtmlSax" fork="true">
 	 		<arg value="${xml-file}"/>
 			<classpath refid="run.path"/>
 		</java>
